@@ -1,14 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Discord Регистрация</title>
 </head>
 <body>
-  <h1>Добро пожаловать!</h1>
-  <p>Нажмите кнопку ниже для входа через Discord:</p>
-  <a href="https://discord.com/oauth2/authorize?client_id=1369034103935991959&response_type=code&redirect_uri=https%3A%2F%2Fmr-fey.github.io%2Fsaf2_international%2F&scope=identify">
-    <button>Войти через Discord</button>
-  </a>
+  <h3>Авторизация через Discord...</h3>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    async function main() {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+
+      if (!code) {
+        document.body.innerText = "Не удалось получить код авторизации";
+        return;
+      }
+
+      try {
+        const response = await fetch("https://only-charming-wahoo.ngrok-free.app/api/discord-auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          document.body.innerText = "Ошибка: " + data.error;
+          return;
+        }
+
+        tg.sendData(JSON.stringify(data));
+        tg.close();
+      } catch (err) {
+        document.body.innerText = "Ошибка подключения к серверу";
+      }
+    }
+
+    main();
+  </script>
 </body>
 </html>
